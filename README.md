@@ -1,4 +1,4 @@
-## Setup
+# Automation Framework Setup
 
 ### Prerequisites
 - Python 3.12+
