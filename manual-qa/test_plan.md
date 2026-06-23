@@ -54,26 +54,23 @@ Precondition: User is logged into the System and has access to Upcoming Football
 
 ### ID: MT-006   Title: Stake Exceeding Available Balance - Validation/Negative
 - Priority: High
-- Status: NOT EXECUTED in Part A - see note below
 - Risk Rationale: Insufficient balance is a core financial guardrail - placing bets beyond available funds would let users wager money they do not have, with direct monetary consequences. Validating this rule protects both the user and the business.
 - Steps     //      Expected Results:
-Precondition: User is logged into the System with a Balance lower than the Stake they are about to input
+Precondition: User is logged into the System with a Balance lower than the Stake they are about to input. The Balance available needs to be below 100 euros and above 1 euro
 1. User selects a random bet        //      Bet slip with correct selection summary shows up on the right side of the screen as a fixed card
 2. User inputs a Stake value that exceeds their available Balance      //      Validation error 'Insufficient balance' is shown below Stake input field, Place Bet button is greyed-out and not actionable
 3. User attempts to place the bet      //      Placement is blocked - bet is not placed, no Stake is deducted, no Success Receipt is shown
 
-#### Note: This scenario could not be executed during Part A. The demo environment provides a fixed Balance of €125.50 and a maximum Stake of €100.00, which makes the insufficient-balance state unreachable through the UI - the maximum allowed Stake is always lower than the available Balance. This path is additionally closed by BUG-002 (Balance is not deducted after placing a bet), so the Balance cannot be drained through repeated placements either. The scenario is designed against the Feature Specification (section 4.1) and will be covered through API automation, where a stake-exceeds-balance request can be sent directly to the place-bet endpoint and the rejection response verified. This is also raised in the Strategy and Recommendations part as a test-data limitation.
-
+#### Note: This scenario was initially blocked: on the first day of testing the balance was fixed at €125.50, above the €100.00 max stake, making the insufficient-balance state unreachable. On a subsequent day the balance had changed to €63.17 with no action taken by the tester, which made the scenario reproducible (a stake between €63.18–€100.00 exceeds balance while staying within the allowed stake range). The balance therefore appears to change between sessions/days in a way not described in the spec, which makes this scenario's executability environment-dependent and non-deterministic. Expected Results above reflect the day it was testable. This variability is raised in the Strategy and Recommendations section as a test-data control concern.
 
 ### ID: MT-007   Title: Bet Placement Failure - Error Modal Handling
 - Priority: High
-- Status: NOT EXECUTED in Part A - see note below
 - Risk Rationale: The failure path is half of the placement outcome (success or failure) defined in the spec. If a bet fails, the user must be clearly informed and given a way to recover - a silent or broken failure could lead to lost bets, duplicate placements, or financial discrepancies.
 - Steps     //      Expected Results:
-Precondition: User is logged into the System and has access to Upcoming Football Matches and a Balance that allows for bet placements
-1. User selects a random bet and inputs a valid Stake      //      Bet slip shows correct selection summary, Place Bet button is actionable and green
-2. User clicks Place Bet button and the placement fails (server-side failure)      //      Error modal appears with title 'Something went wrong', body explaining the bet could not be processed and suggesting to try again, with Rebet, Close and top-right 'X' actions present
-3. User clicks Rebet      //      Modal closes and placement is retried
+Precondition: User is logged into the System and has access to Upcoming Football Matches and a Balance that allows for bet placements. User opens a second window and logs in again - the System is now active on two separate instances
+1. User selects a random bet and inputs a valid Stake on both instances     //      Bet slip shows correct selection summary, Place Bet button is actionable and green on both instances
+2. User clicks Place Bet button on both instances in quick succession and the placement fails (bet already in progress)      //      For one of the instances: Error modal appears with title 'Something went wrong', body explaining the bet could not be processed and suggesting to try again, with Rebet, Close and top-right 'X' actions present ; For the other instance: Bet placed successfully
+3. User clicks Rebet on the failed instance modal      //      Modal closes and placement is retried
 4. User triggers the failure again and clicks Close (or top-right 'X')      //      Modal closes and current selection/Stake is cleared, User returns to main flow
 
-#### Note: This scenario could not be executed during Part A. The demo environment provides no mechanism to force a placement failure through the UI - every valid placement resolves to success, and there is no way to induce a server-side error (500), a bet-already-in-progress conflict (409), or other failure from the interface. The scenario is designed against the Feature Specification (section 2.5) and will be approached through API automation, where the documented errors can be triggered and verified directly against the place-bet endpoint. This is also raised in the Strategy and Recommendations part.
+#### Note: The failure state was reached by opening the application in two windows and submitting both placements simultaneously, exploiting the brief Placing... window to trigger a "bet already in progress" style conflict (spec API error class 409). The error modal ("Something went wrong", with Rebet/Close/X) appeared and was verified. Note that this trigger is manual and timing-dependent — there is no straightforward, deterministic UI mechanism to induce a placement failure on demand. For reliable, repeatable coverage, the documented API error classes (400/401/405/409/422/500) are better verified directly against the place-bet endpoint, which is where this is addressed in automation.
