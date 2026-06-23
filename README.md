@@ -7,7 +7,7 @@
 ## Installation
 1. Clone the repository
    git clone https://github.com/nodious/qa-betting-assignment.git
-   cd qa-betting-assignment
+   cd qa-betting-assignment/automation-framework
 
 2. Create and activate a virtual environment
    python3.12 -m venv venv
