@@ -53,3 +53,24 @@
 - Actual Result: Bet slip moves slightly upwards upon initial scroll down
 - Business Impact: None. Minor visual bug.
 - Evidence: Scroll slowly once - you will see Bet Slip moving up a bit. After initial scroll Bet Slip stays fixed. It has something to do with the main grid container element.
+
+### ID: BUG-006   Title: Stake exceeding available balance is accepted, resulting in negative balance
+- Severity: Critical
+- Steps to reproduce:
+1. Log into Swagger and authenticate with unique user ID
+2. POST a bet using /api/place-bet that exceeds current balance
+- Expected Result: Placement is rejected with an 'Insufficient balance' error (spec 4.1); Balance never drops below €0.00; no further bets are possible once Balance is insufficient and all return similar error.
+- Actual Result: The bet is accepted, the Balance becomes negative, and further bets can still be placed despite a negative Balance
+- Business Impact: Critical financial failure. Users can wager money they do not have, driving the account into negative balance with no consequence. On a live system this is a direct financial loss - a user could place unlimited bets with no funds. It also breaks the core 'cannot exceed available balance' business rule that protects both user and operator.
+- Evidence: place-bet API returns HTTP 200 with a negative "balance" value for a stake exceeding available funds; subsequent placements continue to succeed.
+
+### ID: BUG-007   Title: Place-bet API returns currency "USD" instead of "EUR"
+- Severity: High
+- Steps to reproduce:
+1. Log into Swagger and authenticate with unique user ID
+2. Place any valid bet (e.g. matchId premier-league-manutd-chelsea, selection HOME, stake €10)
+3. Inspect the place-bet API response
+- Expected Result: The "currency" field returns "EUR", consistent with the Feature Specification
+- Actual Result: The "currency" field returns "USD" (GET /api/balance response returns "EUR")
+- Business Impact: Currency mismatch in a financial discrepancy that can lead to a financial loss. Causes user confusion, incorrect financial reporting, and potential discrepancies if any downstream system acts on the currency code.
+- Evidence: place-bet 200 response body contains "currency": "USD" despite all stake/payout values being defined in EUR.
