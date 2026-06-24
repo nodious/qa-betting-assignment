@@ -73,3 +73,11 @@ The `user-id` is the same value used to authenticate in the application URL
 gitignored and is not committed.
 
 ### Running the tests
+
+1. API Automation:
+
+   ```
+   pytest tests/api/test_sports_betting.py -m api -v     # verbose for parametrized test case
+   ```
+
+2. UI AutomationL

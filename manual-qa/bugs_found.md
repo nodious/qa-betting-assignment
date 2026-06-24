@@ -11,8 +11,9 @@
 - Business Impact: Huge business impact, as users are able to place invalid bets for games that already took place - the results are known, so there is a lot of money that can be lost. User experience is also struck by this, as users will be disoriented with the view.
 - Evidence: "PAST" tag next to matches in the Upcoming Footbal Matches list
 
-### ID: BUG-002   Title: Balance not being deducted after placing a bet
+### ID: BUG-002   Title: Balance not being deducted after placing a bet on UI
 ### Note: I am aware this is done on purpose for this recruitment demo app, but still - that would be a massive bug on live application
+###       API calls to place-bet endpoint reduce the balance correctly, which confirms the bug is UI-side only
 - Severity: Critical (in production environment)
 - Steps to reproduce:
 1. Log in with authenticated User account and view Upcoming Football Matches list
@@ -74,3 +75,26 @@
 - Actual Result: The "currency" field returns "USD" (GET /api/balance response returns "EUR")
 - Business Impact: Currency mismatch in a financial discrepancy that can lead to a financial loss. Causes user confusion, incorrect financial reporting, and potential discrepancies if any downstream system acts on the currency code.
 - Evidence: place-bet 200 response body contains "currency": "USD" despite all stake/payout values being defined in EUR.
+
+### ID: BUG-008   Title: Reset-balance API returns static "balance": 125.5
+- Severity: High
+- Steps to reproduce:
+1. Log into Swagger and authenticate with unique user ID
+2. Reset balance using /api/reset-balance endpoint
+3. Inspect the reset-balance API response
+- Expected Result: The "balance" field returns an actual account balance
+- Actual Result: The Reset-balance API returns static "balance": 125.5
+- Business Impact: Not that high, unless balance state visible for users is pulled from reset-balance (which is unlikely). If that would be the case - the account balance would be incorrect, which would cause a huge business impact. Luckily, the GET /api/balance works correctly and UI seems to be pulling data from it.
+- Evidence: Discrepancy between /api/reset-balance endpoint response balance and /api/balance GET response balance
+
+### ID: BUG-009   Title: Non-numeric / malformed stake values cause HTTP 500 instead of graceful 422 error
+- Severity: High
+- Steps to reproduce:
+1. Log into Swagger and authenticate with unique user ID
+2. POST to /api/place-bet with a valid matchId and selection, and a malformed stake value:
+   - a non-numeric string, e.g. "asd" or
+   - a number using a comma as a decimal separator, e.g. "1,23"
+- Expected Result: The API rejects the invalid stake gracefully with HTTP 422 and a validation error (spec 4.1: "Stake must be numeric → Reject non-numeric values")
+- Actual Result: The API returns HTTP 500 Internal Server Error, indicating an unhandled exception rather than input validation
+- Business Impact: Malformed user input crashes the request handler instead of being rejected gracefully. A 500 indicates the input validation layer is incomplete and an exception is reaching the server. 500 errors can be a security risk so the business impact here is quite significant.
+- Evidence: POST /api/place-bet with stake "asd" or "1,23" returns HTTP 500; valid and other invalid-but-handled stakes (e.g. 0.99) return 422 as expected.
