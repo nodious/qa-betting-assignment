@@ -12,7 +12,7 @@
 - Evidence: "PAST" tag next to matches in the Upcoming Footbal Matches list
 
 ### ID: BUG-002   Title: Balance not being deducted after placing a bet on UI
-### Note: I am aware this is done on purpose for this recruitment demo app, but still - that would be a massive bug on live application
+### Note: I am aware this might have been done on purpose for this recruitment demo app, but still - that would be a massive bug on live application
 ###       API calls to place-bet endpoint reduce the balance correctly, which confirms the bug is UI-side only
 - Severity: Critical (in production environment)
 - Steps to reproduce:
@@ -98,3 +98,25 @@
 - Actual Result: The API returns HTTP 500 Internal Server Error, indicating an unhandled exception rather than input validation
 - Business Impact: Malformed user input crashes the request handler instead of being rejected gracefully. A 500 indicates the input validation layer is incomplete and an exception is reaching the server. 500 errors can be a security risk so the business impact here is quite significant.
 - Evidence: POST /api/place-bet with stake "asd" or "1,23" returns HTTP 500; valid and other invalid-but-handled stakes (e.g. 0.99) return 422 as expected.
+
+### ID: BUG-010   Title: Success Receipt does not show Bet Selection - Feature Specification misalignment
+- Severity: Medium
+- Steps to reproduce:
+1. Log in with authenticated User account and view Upcoming Football Matches list
+2. Select any valid bet and Place Bet
+3. Wait for Success Receipt to show up
+- Expected Result: The Success Receipt shows Bet Selection made, alongside all other bet details as per feature specification document
+- Actual Result: Bet Selection is missing from Success Receipt
+- Business Impact: Small to medium at most - as the information summary on Success Receipt should show the full context of the bet placed to the user
+- Evidence: Bet Selection is missing from Success Receipt
+
+### ID: BUG-011   Title: Success Receipt Potential Payout is miscalculated
+- Severity: Critical
+- Steps to reproduce:
+1. Log in with authenticated User account and view Upcoming Football Matches list
+2. Select any valid bet and Place Bet
+3. Wait for Success Receipt to show up
+- Expected Result: The Success Receipt Potential Payout equals (stake x odds), same as on Bet Slip
+- Actual Result: Potential Payout seems to be pulling a static value instead of odds - for me Potential Payout equalled (stake x 2)
+- Business Impact: Critical - as the Potential Payout is the most crucial value in the system. It has to be calculated correctly
+- Evidence: Success Receipt's Potential Payout does not equal (stake x odds)

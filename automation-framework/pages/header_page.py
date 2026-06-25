@@ -24,11 +24,6 @@ class HeaderPage(BasePage):
         return self._parse_money(balance_text)
 
     def _parse_money(self, text):
-        """
-        Extract the euro amount from balance text and return a float.
-        Handles labels, currency symbols, and newlines, e.g.:
-          'Balance: €120.00'  -> 120.0
-          'Balance:\n€63.17'  -> 63.17
-        """
+        """Extract the euro amount from balance text and return a float"""
         amount = text.split("€")[-1]
         return float(amount.replace(",", "").strip())
