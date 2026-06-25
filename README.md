@@ -74,6 +74,9 @@ gitignored and is not committed.
 
 ### Running the tests
 
+Expected result: the suite reports passing tests alongside several xfail (expected-failure) cases. These xfails are intentional — they document confirmed defects (see the bug reports in manual-qa/), and each references the relevant bug ID. They are not test failures.
+
+
 1. API Automation:
 
    ```
@@ -83,7 +86,7 @@ gitignored and is not committed.
 2. UI Automation
 
    ```
-   pytest tests/ui/test_place_bet.py -m ui               # throwback for errors: --tb=long
+   pytest tests/ui/test_place_bet.py -m ui               # traceback for errors: --tb=long
    ```
 
 3. All tests
