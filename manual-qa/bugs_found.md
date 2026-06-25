@@ -120,3 +120,14 @@
 - Actual Result: Potential Payout seems to be pulling a static value instead of odds - for me Potential Payout equalled (stake x 2)
 - Business Impact: Critical - as the Potential Payout is the most crucial value in the system. It has to be calculated correctly
 - Evidence: Success Receipt's Potential Payout does not equal (stake x odds)
+
+### ID: BUG-012   Title: Success Receipt reverses home/away team order
+- Severity: Medium
+- Steps to reproduce:
+1. Log in and note a match's team order on the match list (home team is listed first per spec)
+2. Select an outcome and place the bet
+3. Compare the team order on the Success Receipt against the match list
+- Expected Result: The receipt lists teams in the same order as the match list and the spec convention — home team first (e.g. match 'Leeds vs Norwich' → receipt 'Leeds vs Norwich')
+- Actual Result: The receipt reverses the order, showing away team first (match 'Leeds vs Norwich' → receipt 'Norwich vs Leeds')
+- Business Impact: The receipt misrepresents the fixture the user bet on. Per spec, team order encodes which side is home; reversing it means the receipt shows a different home/away assignment than what was selected, risking user confusion. Inconsistent with the spec's "Match Ordering" guarantee that the convention carries through to the receipt.
+- Evidence: Match card and API id 'championship-leeds-norwich' (Leeds home); match list displays 'Leeds vs Norwich'; receipt displays 'Norwich vs Leeds'.

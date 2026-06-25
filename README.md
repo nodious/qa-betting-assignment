@@ -80,4 +80,14 @@ gitignored and is not committed.
    pytest tests/api/test_sports_betting.py -m api -v     # verbose for parametrized test case
    ```
 
-2. UI AutomationL
+2. UI Automation
+
+   ```
+   pytest tests/ui/test_place_bet.py -m ui               # throwback for errors: --tb=long
+   ```
+
+3. All tests
+
+   ```
+   pytest -v
+   ```
